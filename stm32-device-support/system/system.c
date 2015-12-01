@@ -48,8 +48,7 @@
 
 volatile int32_t ITM_RxBuffer;
 extern uint32_t ___SVECTOR_OFFSET; // defined in linker script, must be multiple of 0x200?
-
-static void set_resetflag(uint16_t rcc_flag, uint16_t resetflag, uint16_t* resetflags);
+static uint16_t __resetflags;
 
 /**
  * linker script defines memory base and vector table offset values
@@ -110,7 +109,7 @@ void delay(volatile uint32_t count)
   */
 void soft_reset()
 {
-    clear_resetflags();
+	sys_clear_hardware_reset_flags();
     NVIC_SystemReset();
 }
 
@@ -149,43 +148,69 @@ void fake_hardfault()
  *    @arg RESETFLAG_WWDGRST
  * @param resetflags is a variable to store the result in.
  */
-void set_resetflag(uint16_t rcc_flag, uint16_t resetflag, uint16_t* resetflags)
+static void sys_refresh_reset_flag(uint16_t rcc_flag, uint16_t resetflag, uint16_t* resetflags)
 {
     if(RCC_GetFlagStatus(rcc_flag) == SET)
         *resetflags |= resetflag;
 }
 
 /**
- * clears all reset flags
+ * clears all reset flags, but not the reset source variable.
  */
-void clear_resetflags()
+void sys_clear_hardware_reset_flags()
 {
     RCC_ClearFlag();
 }
 
 /**
- * @retval  returns the source(s) of the last reset.
+ * copies the reset flag states into the local reset source variable.
  */
-uint16_t get_resetflags()
+void sys_refresh_reset_flags()
 {
-    uint16_t resetflags = 0;
+	sys_refresh_reset_flag(RCC_FLAG_SFTRST, RESETFLAG_SFTRST, &__resetflags);
+	sys_refresh_reset_flag(RCC_FLAG_PORRST, RESETFLAG_PORRST, &__resetflags);
+	sys_refresh_reset_flag(RCC_FLAG_PINRST, RESETFLAG_PINRST, &__resetflags);
+	sys_refresh_reset_flag(RCC_FLAG_IWDGRST, RESETFLAG_IWDGRST, &__resetflags);
+	sys_refresh_reset_flag(RCC_FLAG_WWDGRST, RESETFLAG_WWDGRST, &__resetflags);
+	sys_refresh_reset_flag(RCC_FLAG_LPWRRST, RESETFLAG_LPWRRST, &__resetflags);
+}
 
-    set_resetflag(RCC_FLAG_SFTRST, RESETFLAG_SFTRST, &resetflags);
-    set_resetflag(RCC_FLAG_PORRST, RESETFLAG_PORRST, &resetflags);
-    set_resetflag(RCC_FLAG_PINRST, RESETFLAG_PINRST, &resetflags);
-    set_resetflag(RCC_FLAG_IWDGRST, RESETFLAG_IWDGRST, &resetflags);
-    set_resetflag(RCC_FLAG_WWDGRST, RESETFLAG_WWDGRST, &resetflags);
-    set_resetflag(RCC_FLAG_LPWRRST, RESETFLAG_LPWRRST, &resetflags);
 
-    return resetflags;
+/**
+ * @retval  returns the local reset source variable.
+ */
+uint16_t sys_get_reset_flags()
+{
+    return __resetflags;
 }
 
 /**
- * @retval  returns true if the specified flag is set in the resetflags variable (populated by @ref get_resetflags)
+ * @retval  returns true if the specified flag is set in the local reset flags variable.
  */
-bool get_resetflag_state(uint16_t resetflags, uint16_t flag)
+bool sys_get_reset_source_state(uint16_t flag)
 {
-    return (bool)(resetflags&flag);
+    return (bool)(__resetflags&flag);
+}
+
+/**
+ * @retval  returns the string representation of the local reset source variable.
+ */
+const char* sys_get_reset_source_string()
+{
+	if(__resetflags & RESETFLAG_IWDGRST)
+		return "iwatchdog";
+	else if(__resetflags &  RESETFLAG_WWDGRST)
+		return "wwatchdog";
+	else if(__resetflags & RESETFLAG_LPWRRST)
+		return "lowpower";
+	else if(__resetflags & RESETFLAG_PORRST)
+		return "poweron";
+	else if(__resetflags &  RESETFLAG_SFTRST)
+		return "software";
+	else if(__resetflags & RESETFLAG_PINRST)
+		return "hardware";
+
+	return "unknown";
 }
 
 /**

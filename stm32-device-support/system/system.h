@@ -121,9 +121,12 @@ void soft_reset();
 void fake_hardfault(void);
 void run_from(uint32_t address);
 
-void clear_resetflags();
-uint16_t get_resetflags();
-bool get_resetflag_state(uint16_t resetflags, uint16_t flag);
+
+void sys_clear_hardware_reset_flags();
+void sys_refresh_reset_flags();
+bool sys_get_reset_source_state(uint16_t flag);
+const char* sys_get_reset_source_string();
+
 
 uint64_t get_device_uid();
 void get_device_uid_string(uint8_t* str);
