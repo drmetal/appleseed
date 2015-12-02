@@ -174,7 +174,7 @@ http_response_t* http_request(http_request_t* request, http_response_t* response
                 	// TODO - receive header only, decode nice info like content length, then receive body...
                 	while(resplen < response->size-1)
                 	{
-                		chunklen = recv(fd, response->buffer + resplen, response->size - resplen, 0);
+                		chunklen = recv(fd, response->buffer + resplen, response->size - 1 - resplen, 0);
                 		if(chunklen <= 0)
                 			break;
                 		resplen += chunklen;
