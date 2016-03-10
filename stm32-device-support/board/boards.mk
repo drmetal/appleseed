@@ -14,7 +14,7 @@ include $(BOARDDIR)/$(BOARD).bsp/board.mk
 
 ## test BOARD againt BOARDS
 ifeq ($(filter $(BOARD),$(BOARDS)), )
-$(error board '$(BOARD)' not supported. supported boards: $(BOARDS))
+$(error board '$(BOARD)' not supported. specify BSP name without .bsp, supported boards: $(shell cd $(BOARDDIR); ls -d */))
 endif
 
 ## if no network drivers have been enabled then set PHY selection to none
