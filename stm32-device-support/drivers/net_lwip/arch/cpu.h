@@ -33,6 +33,9 @@
 #define __CPU_H__
 
 #include "board_config.h"
+
+#ifndef BYTE_ORDER
 #define BYTE_ORDER LITTLE_ENDIAN
+#endif
 
 #endif /* __CPU_H__ */
