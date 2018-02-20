@@ -1,6 +1,6 @@
 # Appleseed
 
-### Appleseed has changed. this repo uses the now unsupported STM32 standard peripheral libraries. Have a look at [drmetal/lollyjar](https://github.com/drmetal/lollyjar) for an updated version that uses the STM32 Cube HAL. 
+### Appleseed has changed. this repo uses the now unsupported STM32 standard peripheral libraries. Have a look at [drmetal/like-posix](https://github.com/drmetal/like-posix) for an updated version that uses the STM32 Cube HAL. 
 
 Appleseed is a mini POSIX like operating system for small microcontroller devices.
 
@@ -30,7 +30,7 @@ Many hardware peripheral drivers are also included:
 
 Presently STM32F1, STM32F4 devices are supported. Any board with almost any STM32 device on it can be supported.
 
-Demo projects are located here [Appleseed Demos](https://github.com/drmetal/stm32-demos/blob/master/README.md).
+Demo projects are located here [STM32 Demos](https://github.com/drmetal/stm32-demos/blob/master/README.md).
 
 <h2>Including Appleseed in a project</h2>
 
